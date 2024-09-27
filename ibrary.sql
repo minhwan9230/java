@@ -69,5 +69,30 @@ join category c
 on b.category_id=c.id
 where b.title like '%쉬운%' or b.writer like '%%' or b.publisher like '%%'
 		or c.name like '%%';
+ -- -----------------------------------------------------------       
+        DELIMITER //
+
+CREATE PROCEDURE SearchBooks(
+    IN p_title VARCHAR(50),
+    IN p_writer VARCHAR(20),
+    IN p_publisher VARCHAR(20),
+    IN p_category VARCHAR(10)
+)
+BEGIN
+    SELECT
+        b.title, b.writer, b.publisher, c.name,
+        CASE
+            WHEN b.isrent = 0 THEN '대여 가능'
+            WHEN b.isrent = 1 THEN '대여 불가능'
+        END AS '대여 여부'
+    FROM book b
+    JOIN category c ON b.category_id = c.id
+    WHERE (b.title LIKE CONCAT('%', p_title, '%') OR p_title IS NULL OR p_title = '')
+      AND (b.writer LIKE CONCAT('%', p_writer, '%') OR p_writer IS NULL OR p_writer = '')
+      AND (b.publisher LIKE CONCAT('%', p_publisher, '%') OR p_publisher IS NULL OR p_publisher = '')
+      AND (c.name LIKE CONCAT('%', p_category, '%') OR p_category IS NULL OR p_category = '');
+END //
+
+DELIMITER ;
 		
     
